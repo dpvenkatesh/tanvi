@@ -273,6 +273,25 @@
         window.addEventListener('resize', resize);
         resize();
 
+        let globalWindX = 0;
+        let globalWindY = 0;
+        let lastScrollY = window.scrollY || 0;
+
+        window.addEventListener('scroll', () => {
+            let currentScrollY = window.scrollY;
+            let delta = currentScrollY - lastScrollY;
+            
+            // Calculate wind based on scroll direction/speed
+            globalWindY -= delta * 0.15;
+            globalWindX += (Math.random() - 0.5) * Math.abs(delta) * 0.15;
+            
+            // Limit wind speed max/min
+            globalWindY = Math.max(-15, Math.min(15, globalWindY));
+            globalWindX = Math.max(-10, Math.min(10, globalWindX));
+
+            lastScrollY = currentScrollY;
+        });
+
         class Petal {
             constructor() {
                 this.reset();
@@ -294,15 +313,23 @@
             }
 
             update() {
-                this.y += this.speedY;
-                // Add a sine wave movement to simulate gentle wind/swaying
-                this.x += this.speedX + Math.sin(this.y * this.sway + this.swayOffset) * 1.5;
-                this.angle += this.spin;
+                this.y += this.speedY + globalWindY;
+                // Add a sine wave movement to simulate gentle wind/swaying + physics wind
+                this.x += this.speedX + Math.sin(this.y * this.sway + this.swayOffset) * 1.5 + globalWindX;
+                this.angle += this.spin + (globalWindX * 0.015);
 
                 // Reset particle when it falls below screen
                 if (this.y > height + 20) {
                     this.reset();
+                } else if (this.y < -20 && globalWindY < -2) {
+                    // If blown extremely high upwards, wrap to bottom
+                    this.x = Math.random() * width;
+                    this.y = height + 10;
                 }
+                
+                // Wrap horizontally
+                if (this.x > width + 20) this.x = -10;
+                if (this.x < -20) this.x = width + 10;
             }
 
             draw() {
@@ -338,6 +365,10 @@
         // Animation Loop
         function animate() {
             ctx.clearRect(0, 0, width, height);
+
+            // Apply friction/decay to wind so it settles after scrolling
+            globalWindX *= 0.92;
+            globalWindY *= 0.92;
 
             particles.forEach(particle => {
                 particle.update();
