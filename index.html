@@ -147,10 +147,11 @@
 
         <!-- Itinerary Section -->
         <div class="max-w-[95%] sm:max-w-xl w-full flex flex-col items-center mt-12 md:mr-12 mb-16 sm:mb-20 z-20">
-            <h3 data-te="వేడుకల వివరాలు"
-                class="cursive-text text-4xl md:text-5xl text-[#8e2a48] mb-6 sm:mb-8 font-bold text-shadow-elegant text-center">
-                Celebration Itinerary
-            </h3>
+            <div id="preEventsWrapper" class="w-full flex flex-col items-center">
+                <h3 data-te="వేడుకల వివరాలు"
+                    class="cursive-text text-4xl md:text-5xl text-[#8e2a48] mb-6 sm:mb-8 font-bold text-shadow-elegant text-center">
+                    Celebration Itinerary
+                </h3>
 
             <!-- Pre-Events Venue Banner -->
             <div
@@ -230,6 +231,7 @@
                 </div>
 
             </div>
+            </div> <!-- End of preEventsWrapper -->
 
             <!-- Main Event: Half Saree Ceremony -->
             <div
@@ -449,11 +451,19 @@
         // Start animation
         animate();
     </script>
-    <!-- Language Controller Script -->
+    <!-- Language & Options Controller Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const lang = urlParams.get('lang') || 'en';
+            const hideItinerary = urlParams.get('_');
+
+            if (hideItinerary !== null) {
+                const preEvents = document.getElementById('preEventsWrapper');
+                if (preEvents) {
+                    preEvents.style.display = 'none';
+                }
+            }
 
             if (lang === 'te') {
                 document.querySelectorAll('[data-te]').forEach(el => {
