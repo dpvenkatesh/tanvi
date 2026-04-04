@@ -236,7 +236,7 @@
             <!-- Main Event: Half Saree Ceremony -->
             <div
                 class="bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-xl border border-[#8e2a48]/20 text-center w-full mt-6 transform transition duration-300 hover:scale-[1.02]">
-                <h4 class="cursive-text text-4xl text-[#8e2a48] mb-6 font-bold" data-te="ముఖ్య ఘట్టం">Main Event</h4>
+                <h4 id="mainEventTitle" class="cursive-text text-4xl text-[#8e2a48] mb-6 font-bold" data-te="ముఖ్య ఘట్టం">Main Event</h4>
 
                 <!-- Date & Time Section -->
                 <div class="flex items-center justify-center space-x-4 mb-4">
@@ -462,6 +462,11 @@
                 const preEvents = document.getElementById('preEventsWrapper');
                 if (preEvents) {
                     preEvents.style.display = 'none';
+                }
+                const mainTitle = document.getElementById('mainEventTitle');
+                if (mainTitle) {
+                    mainTitle.setAttribute('data-te', 'వేడుక వివరాలు');
+                    mainTitle.innerHTML = 'Event Details';
                 }
             }
 
