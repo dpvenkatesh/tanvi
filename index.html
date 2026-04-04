@@ -336,10 +336,36 @@
         let lastTouchX = 0;
         let lastTouchY = 0;
 
+        function createBurst(x, y, count = 12) {
+            for (let i = 0; i < count; i++) {
+                let p = new Petal();
+                p.x = x;
+                p.y = y;
+                
+                // Explode outwards
+                let angle = Math.random() * Math.PI * 2;
+                let force = Math.random() * 6 + 2; 
+                p.speedX = Math.cos(angle) * force;
+                p.speedY = Math.sin(angle) * force;
+                
+                // Mark as burst petal so it fades out
+                p.isBurst = true;
+                p.life = 1.0; 
+                p.decay = Math.random() * 0.03 + 0.015;
+
+                particles.push(p);
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            createBurst(e.clientX, e.clientY, 15);
+        });
+
         window.addEventListener('touchstart', (e) => {
             if (e.touches.length > 0) {
                 lastTouchX = e.touches[0].clientX;
                 lastTouchY = e.touches[0].clientY;
+                createBurst(lastTouchX, lastTouchY, 12);
             }
         }, { passive: true });
 
@@ -380,6 +406,7 @@
                 this.color = colors[Math.floor(Math.random() * colors.length)];
                 this.sway = Math.random() * 0.05; // Horizontal sway
                 this.swayOffset = Math.random() * Math.PI * 2;
+                this.isBurst = false;
             }
 
             update() {
@@ -388,22 +415,31 @@
                 this.x += this.speedX + Math.sin(this.y * this.sway + this.swayOffset) * 0.8 + globalWindX;
                 this.angle += this.spin + (globalWindX * 0.015);
 
-                // Wrap vertically
-                if (this.y > height + 20) {
-                    this.y = -10;
-                    this.x = Math.random() * width;
-                } else if (this.y < -20) {
-                    this.y = height + 10;
-                    this.x = Math.random() * width;
-                }
+                if (this.isBurst) {
+                    this.speedX *= 0.94; // friction
+                    this.speedY *= 0.94;
+                    this.life -= this.decay;
+                } else {
+                    // Wrap vertically
+                    if (this.y > height + 20) {
+                        this.y = -10;
+                        this.x = Math.random() * width;
+                    } else if (this.y < -20) {
+                        this.y = height + 10;
+                        this.x = Math.random() * width;
+                    }
 
-                // Wrap horizontally
-                if (this.x > width + 20) this.x = -10;
-                else if (this.x < -20) this.x = width + 10;
+                    // Wrap horizontally
+                    if (this.x > width + 20) this.x = -10;
+                    else if (this.x < -20) this.x = width + 10;
+                }
             }
 
             draw() {
                 ctx.save();
+                if (this.isBurst) {
+                    ctx.globalAlpha = Math.max(0, this.life);
+                }
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle);
 
@@ -440,10 +476,15 @@
             globalWindX *= 0.92;
             globalWindY *= 0.92;
 
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.update();
+                if (p.isBurst && p.life <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    p.draw();
+                }
+            }
 
             requestAnimationFrame(animate);
         }
