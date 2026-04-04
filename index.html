@@ -319,16 +319,48 @@
             let currentScrollY = window.scrollY;
             let delta = currentScrollY - lastScrollY;
 
-            // Calculate wind based on scroll direction/speed
-            globalWindY -= delta * 0.15;
-            globalWindX += (Math.random() - 0.5) * Math.abs(delta) * 0.15;
+            // Calculate wind based on scroll direction/speed (slower multiplier)
+            globalWindY -= delta * 0.05;
+            globalWindX += (Math.random() - 0.5) * Math.abs(delta) * 0.05;
 
             // Limit wind speed max/min
-            globalWindY = Math.max(-15, Math.min(15, globalWindY));
-            globalWindX = Math.max(-10, Math.min(10, globalWindX));
+            globalWindY = Math.max(-8, Math.min(8, globalWindY));
+            globalWindX = Math.max(-8, Math.min(8, globalWindX));
 
             lastScrollY = currentScrollY;
         });
+
+        // Touch & Swipe Wind Effect
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) {
+                lastTouchX = e.touches[0].clientX;
+                lastTouchY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                let currentTouchX = e.touches[0].clientX;
+                let currentTouchY = e.touches[0].clientY;
+
+                let deltaX = currentTouchX - lastTouchX;
+                let deltaY = currentTouchY - lastTouchY;
+
+                // Apply wind boost from swipe direction
+                globalWindX += deltaX * 0.06;
+                globalWindY += deltaY * 0.06;
+
+                // Limit wind speed max/min
+                globalWindY = Math.max(-8, Math.min(8, globalWindY));
+                globalWindX = Math.max(-8, Math.min(8, globalWindX));
+
+                lastTouchX = currentTouchX;
+                lastTouchY = currentTouchY;
+            }
+        }, { passive: true });
 
         class Petal {
             constructor() {
